@@ -10,7 +10,7 @@
 using namespace std;
 
 const int MAXROWS = 50;
-const int NCOLS = 6;
+const int NCOLS = 5;
 const string fileName = "StudentData.txt";
 
 // Read student data off a file
@@ -20,13 +20,18 @@ int getTestScores(string names[], double scores[][NCOLS], int MaxRows);
 
 // Calculate average test score for each student
 //Preconditions - receives a table of raw scores for each student and the number of students
-//Postcondition - The average test score is calculated and placed at the end of each row in the table
-void calcAverages(double scores[][NCOLS], int numRows);
+//Postcondition - The average test score is calculated and placed in the averages list
+void calcAverages(double scores[][NCOLS], double averages[], int numRows);
 
 //Transforms a numeric score into a letter grade
 //Precondition: Takes in a score (between 1 - 100)
 //Postcondition: returns A, B, C, D, or F
 char getLetterGrade(double average);
+
+// Writes a report showing the average test score and letter grade for each student
+// Precondtions - Receives the names, the averages, and letter grades
+// Postcondition - A formatted report is sent to the display
+void writeReport(string names[], double averages[], char letGrades[], int numRecords);
 
 
 
@@ -34,25 +39,30 @@ int main()
 {
     string students[MAXROWS];
     double testScores[MAXROWS][NCOLS];
+    double averages[MAXROWS];
+    char letGrades[MAXROWS];
     int numRecords;
 
     numRecords = getTestScores(students, testScores, MAXROWS);
-    calcAverages(testScores, numRecords);
-
-
-
-
-
-
+    calcAverages(testScores, averages, numRecords);
     for (int i = 0; i < numRecords; i++)
+    {
+        letGrades[i] = getLetterGrade(averages[i]);
+    }
+
+    writeReport(students, averages, letGrades, numRecords);
+
+
+    /*for (int i = 0; i < numRecords; i++)
     {
         cout << students[i] << " ";
         for (int j = 0; j < NCOLS; j++)
             cout << testScores[i][j] << " ";
-        cout << getLetterGrade(testScores[i][NCOLS]) << endl;
-    }
-        
+        cout << averages[i] << " ";
+        cout << letGrades[i] << endl;
+    }*/
 
+    return 0;
 }
 
 int getTestScores(string names[], double scores[][NCOLS], int MaxRows)
@@ -69,7 +79,7 @@ int getTestScores(string names[], double scores[][NCOLS], int MaxRows)
     inFile >> names[rows];
     while(!inFile.eof() && !(rows >= MaxRows))
     {
-        for (int i = 0; i < NCOLS-1; i++)
+        for (int i = 0; i < NCOLS; i++)
         {
             inFile >> scores[rows][i];
         }
@@ -80,21 +90,20 @@ int getTestScores(string names[], double scores[][NCOLS], int MaxRows)
     return rows;
 }
 
-void calcAverages(double scores[][NCOLS], int numRows)
+void calcAverages(double scores[][NCOLS], double averages[], int numRows)
 {
     double sum = 0;
     for (int i = 0; i < numRows; i++)
     {
         sum = 0;
-        for (int j = 0; j < NCOLS - 1; j++)
+        for (int j = 0; j < NCOLS; j++)
             sum += scores[i][j];
-        scores[i][NCOLS - 1] = sum / (NCOLS - 1);
+        averages[i] = sum / (NCOLS);
     }
 }
 
 char getLetterGrade(double average)
 {
-    cout << average << endl;
     char letterGrade;
     if (average >= 90)
         return 'A';
@@ -106,6 +115,14 @@ char getLetterGrade(double average)
         return 'D';
     else
         return 'F';
+}
+
+void writeReport(string names[], double averages[], char letGrades[], int numRecords)
+{
+    cout << fixed << setprecision(2) << showpoint;
+    cout << "Student      Average   Grade" << endl;
+    for (int i = 0; i < numRecords; i++)
+        cout << setw(14) << left << names[i] << setw(6) << right << averages[i] << setw(6) << letGrades[i] << endl;
 }
 
 

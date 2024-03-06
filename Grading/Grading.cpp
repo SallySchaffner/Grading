@@ -13,15 +13,23 @@ const int MAXROWS = 50;
 const int NCOLS = 5;
 const string fileName = "StudentData.txt";
 
+struct studentRecord
+{
+    string name;
+    double scores[NCOLS];
+    double average;
+    char grade;
+};
+
 // Read student data off a file
 // Preconditions - Expects reference to names array and scores array, which will empty, maximum number of rows (capacity)
 // Postconditions - Return the actual number of rows on the file, store the data from the file in the arrays in memory
-int getTestScores(string names[], double scores[][NCOLS], int MaxRows);
+int getTestScores(studentRecord students[], int MaxRows);
 
 // Calculate average test score for each student
 //Preconditions - receives a table of raw scores for each student and the number of students
 //Postcondition - The average test score is calculated and placed in the averages list
-void calcAverages(double scores[][NCOLS], double averages[], int numRows);
+void calcAverages(studentRecord students[], int numRows);
 
 //Transforms a numeric score into a letter grade
 //Precondition: Takes in a score (between 1 - 100)
@@ -31,26 +39,23 @@ char getLetterGrade(double average);
 // Writes a report showing the average test score and letter grade for each student
 // Precondtions - Receives the names, the averages, and letter grades
 // Postcondition - A formatted report is sent to the display
-void writeReport(string names[], double averages[], char letGrades[], int numRecords);
+void writeReport(studentRecord students[], int numRecords);
 
 
 
 int main()
 {
-    string students[MAXROWS];
-    double testScores[MAXROWS][NCOLS];
-    double averages[MAXROWS];
-    char letGrades[MAXROWS];
+    studentRecord students[MAXROWS];
     int numRecords;
 
-    numRecords = getTestScores(students, testScores, MAXROWS);
-    calcAverages(testScores, averages, numRecords);
+    numRecords = getTestScores(students, MAXROWS);
+    calcAverages(students, numRecords);
     for (int i = 0; i < numRecords; i++)
     {
-        letGrades[i] = getLetterGrade(averages[i]);
+        students[i].grade = getLetterGrade(students[i].average);
     }
 
-    writeReport(students, averages, letGrades, numRecords);
+    writeReport(students, numRecords);
 
 
     /*for (int i = 0; i < numRecords; i++)
@@ -65,7 +70,7 @@ int main()
     return 0;
 }
 
-int getTestScores(string names[], double scores[][NCOLS], int MaxRows)
+int getTestScores(studentRecord students[], int MaxRows)
 {
     ifstream inFile;
     int rows = 0;
@@ -76,29 +81,29 @@ int getTestScores(string names[], double scores[][NCOLS], int MaxRows)
         return -1;
     }
     
-    inFile >> names[rows];
+    inFile >> students[rows].name;
     while(!inFile.eof() && !(rows >= MaxRows))
     {
         for (int i = 0; i < NCOLS; i++)
         {
-            inFile >> scores[rows][i];
+            inFile >> students[rows].scores[i];
         }
         rows++;
-        inFile >> names[rows];
+        inFile >> students[rows].name;
     }
     inFile.close();
     return rows;
 }
 
-void calcAverages(double scores[][NCOLS], double averages[], int numRows)
+void calcAverages(studentRecord students[], int numRows)
 {
     double sum = 0;
     for (int i = 0; i < numRows; i++)
     {
         sum = 0;
         for (int j = 0; j < NCOLS; j++)
-            sum += scores[i][j];
-        averages[i] = sum / (NCOLS);
+            sum += students[i].scores[j];
+        students[i].average = sum / (NCOLS);
     }
 }
 
@@ -117,12 +122,12 @@ char getLetterGrade(double average)
         return 'F';
 }
 
-void writeReport(string names[], double averages[], char letGrades[], int numRecords)
+void writeReport(studentRecord students[], int numRecords)
 {
     cout << fixed << setprecision(2) << showpoint;
     cout << "Student      Average   Grade" << endl;
     for (int i = 0; i < numRecords; i++)
-        cout << setw(14) << left << names[i] << setw(6) << right << averages[i] << setw(6) << letGrades[i] << endl;
+        cout << setw(14) << left << students[i].name << setw(6) << right << students[i].average << setw(6) << students[i].grade << endl;
 }
 
 
